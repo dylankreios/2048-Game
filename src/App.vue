@@ -1,5 +1,5 @@
 <template>
-  <div class="board" tabindex="1">
+  <div class="board">
     <Cell
       v-for="cell in cells.flat(1)"
       :key="cell.id"
@@ -34,7 +34,7 @@ export default {
       getDownHandle,
     } = actions;
 
-    const keyDownHandler = (e) => {
+    const keyUpHandler = (e) => {
       e.preventDefault();
       switch (e.keyCode) {
         case 37:
@@ -50,11 +50,13 @@ export default {
           getDownHandle(cells.value);
           break;
       }
-      updateNewCell(cells.value);
+      if ([37, 38, 39, 40].includes(e.keyCode)) {
+        updateNewCell(cells.value);
+      }
     };
 
     onMounted(() => {
-      window.addEventListener("keydown", throtte(keyDownHandler, 1000));
+      window.addEventListener("keyup", throtte(keyUpHandler, 200));
     });
 
     return {
@@ -105,6 +107,7 @@ const updateNewCell = (cells) => {
 };
 
 const randomIndex = () => Math.floor(Math.random() * 4);
+// 节流
 const throtte = (func, delay) => {
   let pre = Date.now();
   return function(...rest) {
